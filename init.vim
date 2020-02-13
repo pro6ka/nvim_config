@@ -1,4 +1,5 @@
 set encoding=UTF-8
+set fileencodings=utf8,cp1251
 
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
     silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
@@ -19,17 +20,21 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'vimwiki/vimwiki'
     Plug 'ryanoasis/vim-devicons'
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+    Plug 'jlanzarotta/bufexplorer'
     "Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'scrooloose/syntastic'
+    "Plug 'scrooloose/syntastic'
+    Plug 'dense-analysis/ale'
     Plug 'gcorne/vim-sass-lint'
     Plug 'ArtBIT/vim-modularvimrc'
     Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'tpope/vim-fugitive'
     Plug 'ap/vim-css-color'
     Plug 'tpope/vim-dotenv'
     Plug 'lifepillar/vim-solarized8'
     " CTags
-    Plug 'ludovicchabant/vim-gutentags'
+    au BufWritePost *.php silent! !eval '[ -f ".git/hooks/ctags" ] && .git/hooks/ctags' &
+    "" Ctags + CtrlP
+    nnoremap <leader>. :CtrlPTag<cr>
+    set fileencodings=utf8,cp1251
     " autocomplete
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     if has('win32') || has('win64')
@@ -44,24 +49,27 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'idanarye/vim-merginal' " git branching
 call plug#end()
 
+""" Git Fugitive
+
 """ Material Theme
+
 let g:enable_bold_font = 1
 let g:enable_italic_font = 1
 let g:hybrid_transparent_background = 1
+set background=dark
+colorscheme solarized8
+let g:airline_theme = "solarized"
 if (has("nvim"))
   "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
-  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 endif
 
 "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
 "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
 " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
 if (has("termguicolors"))
-  set termguicolors
+    set termguicolors
 endif
-
-""" GutenTags
-set statusline+=%{gutentags#statusline()}
 
 """ Deoplete
 let g:deoplete#enable_at_startup = 1
@@ -76,26 +84,19 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 
 " Custom setup that removes filetype/whitespace from default vim airline bar
 let g:airline#extensions#default#layout = [['a', 'b', 'c'], ['x', 'z', 'warning', 'error']]
-
 let airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
-
 let airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
-
 " Configure error/warning section to use coc.nvim
 let g:airline_section_error = '%{airline#util#wrap(airline#extensions#coc#get_error(),0)}'
 let g:airline_section_warning = '%{airline#util#wrap(airline#extensions#coc#get_warning(),0)}'
-
 " Enable powerline fonts
 let g:airline_powerline_fonts = 1
-
 " Enable caching of syntax highlighting groups
 let g:airline_highlighting_cache = 1
-
 " Define custom airline symbols
 if !exists('g:airline_symbols')
   let g:airline_symbols = {}
 endif
-
 " Don't show git changes to current file in airline
 let g:airline#extensions#hunks#enabled=0
 
@@ -141,13 +142,14 @@ set foldmethod=manual
 set foldnestmax=10
 set nofoldenable
 set foldlevel=2
+set colorcolumn=110
 
 " highlight current line
 set cursorline
 
 " Tags file
 "" search first in current directory then file directory for tag file
-set tags=tags,./tags
+set tags^=.git/tags;~
 
 " Map the leader key to SPACE
 let mapleader="\<SPACE>"
@@ -224,19 +226,48 @@ set updatetime=100
 
 """ Git Marginal
 map <C-m><C-m> :MerginalToggle<CR>
+
+"" Code Linters
+""" ALE
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_fixers = {'javascript': ['eslint']}
+let g:ale_sign_error = '>>'
+"let g:ale_sign_warning = '⚠'
+let g:ale_fix_on_save = 1
+let g:ale_lint_on_save = 1
+let g:ale_open_list = 1
+let g:ale_linters = {
+            \   'php': ['php','phpcs','phpmd'],
+            \   'javascript': ['eslint'],
+            \   'scss': ['scss-lint']
+        \}
+let g:ale_php_phpcs_standard = 'psr2'
+let b:ale_fixers = {
+            \'javascript': ['prettier', 'eslint'],
+            \'php': ['phpcbf']
+        \}
+" Set this. Airline will handle the rest.
+let g:airline#extensions#ale#enabled = 1
+
+
 """ Sass Lint
-let g:syntastic_sass_checkers=["sasslint"]
-let g:syntastic_scss_checkers=["sasslint"]
+"let g:syntastic_sass_checkers=["sasslint"]
+"let g:syntastic_scss_checkers=["sasslint"]
 
 """ Syntatic
 set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
+"let g:syntastic_debug = 3
+" Syntatic for PHP
+ "let g:sytnastic_php_checkers = ['phpcs']
+ "let g:sytnastic_php_phpcs_exec = '/usr/local/bin/phpcs'
+ "let g:sytanstic_php_phpcs_args = '--standard=psr2 -n'
 
 
 """ CtrlP
@@ -248,3 +279,19 @@ let g:ctrlp_working_path_mode='awr'
 let g:ctrlp_switch_buffer='et'
 
 hi Normal guibg=NONE ctermbg=NONE
+
+" You might also find this useful
+" PHP Generated Code Highlights (HTML & SQL)                                              
+let php_sql_query=1
+let php_htmlInStrings=1
+let g:php_folding=2
+set foldmethod=syntax
+
+" Put these lines at the very end of your vimrc file.
+
+" Load all plugins now.
+" Plugins need to be added to runtimepath before helptags can be generated.
+packloadall
+" Load all of the helptags now, after plugins have been loaded.
+" All messages and errors will be ignored.
+silent! helptags ALL
