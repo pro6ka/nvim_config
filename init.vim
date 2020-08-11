@@ -47,6 +47,10 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'junegunn/gv.vim' " :GV command to show commits
     Plug 'mhinz/vim-signify' " sign column to indicate added, modified, removed lines
     Plug 'idanarye/vim-merginal' " git branching
+    " marks
+    Plug 'kshenoy/vim-signature'
+    " Handlebars
+    Plug 'mustache/vim-mustache-handlebars'
 call plug#end()
 
 """ Git Fugitive
@@ -137,13 +141,6 @@ let g:ultisnips_php_scalar_types = 1
 
 """ System
 
-" folding
-set foldmethod=manual
-set foldnestmax=10
-set nofoldenable
-set foldlevel=2
-set colorcolumn=110
-
 " highlight current line
 set cursorline
 
@@ -230,16 +227,16 @@ map <C-m><C-m> :MerginalToggle<CR>
 "" Code Linters
 """ ALE
 let g:ale_lint_on_text_changed = 'never'
-let g:ale_fixers = {'javascript': ['eslint']}
+let g:ale_fixers = {'javascript': ['eslin']}
 let g:ale_sign_error = '>>'
-"let g:ale_sign_warning = '⚠'
+let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
 let g:ale_open_list = 1
 let g:ale_linters = {
             \   'php': ['php','phpcs','phpmd'],
-            \   'javascript': ['eslint'],
-            \   'scss': ['scss-lint']
+            \   'javascript': ['jshint'],
+            \   'scss': ['sasslint']
         \}
 let g:ale_php_phpcs_standard = 'psr2'
 let b:ale_fixers = {
@@ -248,11 +245,6 @@ let b:ale_fixers = {
         \}
 " Set this. Airline will handle the rest.
 let g:airline#extensions#ale#enabled = 1
-
-
-""" Sass Lint
-"let g:syntastic_sass_checkers=["sasslint"]
-"let g:syntastic_scss_checkers=["sasslint"]
 
 """ Syntatic
 set statusline+=%#warningmsg#
@@ -285,7 +277,13 @@ hi Normal guibg=NONE ctermbg=NONE
 let php_sql_query=1
 let php_htmlInStrings=1
 let g:php_folding=2
-set foldmethod=syntax
+
+" folding
+set foldmethod=manual
+set foldnestmax=10
+"set nofoldenable
+set foldlevel=2
+set colorcolumn=120
 
 " Put these lines at the very end of your vimrc file.
 
@@ -295,3 +293,5 @@ packloadall
 " Load all of the helptags now, after plugins have been loaded.
 " All messages and errors will be ignored.
 silent! helptags ALL
+
+set foldmethod=manual
