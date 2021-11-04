@@ -42,6 +42,9 @@ call plug#begin('~/.config/nvim/plugged')
     else
         Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
     endif
+    Plug 'villainy/deoplete-dart', { 'for': 'dart' }
+    Plug 'deoplete-plugins/deoplete-jedi'
+    Plug 'padawan-php/deoplete-padawan', { 'do': 'composer install' }
     " git
     Plug 'tpope/vim-fugitive'
     Plug 'junegunn/gv.vim' " :GV command to show commits
@@ -51,6 +54,21 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'kshenoy/vim-signature'
     " Handlebars
     Plug 'mustache/vim-mustache-handlebars'
+    " WakeTime
+    Plug 'wakatime/vim-wakatime'
+    " Flutter Dart lang
+    Plug 'dart-lang/dart-vim-plugin'
+    Plug 'natebosch/vim-lsc'
+    Plug 'natebosch/vim-lsc-dart'
+    " JavaScript
+    Plug 'heavenshell/vim-jsdoc', { 
+        \ 'for': ['javascript', 'javascript.jsx','typescript'], 
+        \ 'do': 'make install'
+    \}
+    Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
+
+    " PyLint
+    Plug 'gryf/pylint-vim'
 call plug#end()
 
 """ Git Fugitive
@@ -75,8 +93,28 @@ if (has("termguicolors"))
     set termguicolors
 endif
 
+""" Dart lsc
+let g:lsc_auto_map = v:true
+let dart_html_in_string=v:true
+let g:dart_style_guide = 4
+let g:dart_format_on_save = 1
+
 """ Deoplete
 let g:deoplete#enable_at_startup = 1
+call deoplete#custom#option('ignore_sources', {'_': ['around', 'buffer']})
+" jedi deoplete python
+let g:jedi#auto_initialization = 0
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#use_tabs_not_buffers = 1
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#use_tabs_not_buffers = 1
+let g:jedi#use_splits_not_buffers = "left"
+
+" g:deoplete#sources#jedi#statement_length = 30
+" g:deoplete#sources#jedi#enable_typeinfo = 1
+" ternjs deoplete javascript
+" padawan deoplete php
+" g:deoplete#sources#padawan#composer_command	= /usr/bin/php /usr/local/bin/composer
 
 """ AirLine
 let g:airline_extensions = ['branch', 'hunks', 'coc']
@@ -227,21 +265,28 @@ map <C-m><C-m> :MerginalToggle<CR>
 "" Code Linters
 """ ALE
 let g:ale_lint_on_text_changed = 'never'
-let g:ale_fixers = {'javascript': ['eslin']}
+let g:ale_fixers = {'javascript': ['eslint']}
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '⚠'
 let g:ale_fix_on_save = 1
 let g:ale_lint_on_save = 1
 let g:ale_open_list = 1
+" Use ALE and also some plugin 'foobar' as completion sources for all code.
+call deoplete#custom#option('sources', {
+	\ '_': ['ale',],
+\})
+
 let g:ale_linters = {
             \   'php': ['php','phpcs','phpmd'],
-            \   'javascript': ['jshint'],
-            \   'scss': ['sasslint']
+            \   'javascript': ['eslint'],
+            \   'scss': ['sasslint'],
+            \   'dart': ['dartfmt']
         \}
 let g:ale_php_phpcs_standard = 'psr2'
 let b:ale_fixers = {
-            \'javascript': ['prettier', 'eslint'],
-            \'php': ['phpcbf']
+            \'javascript': ['eslint'],
+            \'php': ['phpcbf'],
+            \'dart': ['dartfmt']
         \}
 " Set this. Airline will handle the rest.
 let g:airline#extensions#ale#enabled = 1
@@ -295,3 +340,5 @@ packloadall
 silent! helptags ALL
 
 set foldmethod=manual
+" set guifont=Fura\ Code\ Light\ Nerd\ Font\ Complete:h16
+set guifont=FiraCode\ Nerd\ Font\ Regular:h16
